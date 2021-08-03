@@ -2,11 +2,24 @@ import h5py
 import os
 import numpy as np
 from spirl.utils.general_utils import AttrDict
+from enum import Enum
 
 import cv2
 
-# data_path = './data/office_TA'
-data_path = './data/block_stacking'
+
+class Task(Enum):
+    Office = 0
+    Block_stack = 1
+    Maze = 2
+
+
+target_task = Task.Office
+
+pathes = {Task.Office: './data/office_TA',
+          Task.Block_stack: './data/block_stacking',
+          Task.Maze: './data/maze'}
+
+data_path = pathes[target_task]
 phase_list = os.listdir(data_path)
 try:
     idx = phase_list.index('.DS_Store')
@@ -17,13 +30,15 @@ except ValueError:
 
 phase_list.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
 print(phase_list)
-phase_num = 0
 
-filename = "rollout_" + str(0) + '.h5'
+# dataset params
+phase_num = 0   # batch num
+rollout_index = 0
+
+filename = "rollout_" + str(rollout_index) + '.h5'
 path = os.path.join(data_path, phase_list[phase_num], filename)
 print('path: ', path)
 
-index = 0
 frame = 0
 while True:
     with h5py.File(path, "r") as f:
@@ -37,7 +52,7 @@ while True:
 
         data = AttrDict()
 
-        key = 'traj{}'.format(index)
+        key = 'traj{}'.format(0)
         # Fetch data into a dict
         for name in f[key].keys():
             if name in ['states', 'actions', 'pad_mask']:
@@ -60,3 +75,6 @@ while True:
                 frame = min(frame + 1, data[name].shape[0] - 1)
             elif k == ord('a'):
                 frame = max(frame - 1, 0)
+        else:
+            print("No images!")
+            break
