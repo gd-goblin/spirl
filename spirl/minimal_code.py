@@ -24,6 +24,8 @@ from spirl.utils.pytorch_utils import LossSpikeHook, NanGradHook, NoneGradHook, 
 from spirl.components.trainer_base import BaseTrainer
 from spirl.components.params import get_args
 
+from test_code import remove_relax_v1
+
 
 class ModelTrainer(BaseTrainer):
     def __init__(self, args):
@@ -379,6 +381,7 @@ def save_config(conf_path, exp_conf_path):
 
 
 if __name__ == '__main__':
+    remove_relax_v1()
     my_args = get_args()
     my_args.path = '/home/twkim/cloudrobot/spirl/spirl/configs/skill_prior_learning/kitchen/hierarchical'
     ModelTrainer(args=my_args)

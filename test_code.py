@@ -6,11 +6,7 @@ from spirl.utils.general_utils import AttrDict
 from enum import Enum
 
 import gym
-import d4rl  # Import required to register environments
-#
-#
-# from mujoco_py import load_model_from_xml, MjSim, MjViewer
-# import math
+import d4rl
 
 import cv2
 
@@ -37,7 +33,6 @@ def generate_kitchen_dataset():
     print("keys: {}".format(keys))
     for k in keys:
         print("{}, shape: {}".format(k, dataset[k].shape))
-
     return dataset
 
 
@@ -50,19 +45,16 @@ def remove_relax_v1():
 
 
 def validate_gym_dataset(env_name):
-
     # Create the environment
     remove_relax_v1()
     dataset = generate_kitchen_dataset()
 
     if env_name == 'kitchen_relax-v1':
         import adept_envs
-
     env = gym.make(env_name)
-
-    print("mj render!!")
-    frame = 0
     env.reset()
+
+    frame = 0
     while frame < len(dataset['observations']):
         action_sample = dataset['actions'][frame]
         env.step(action_sample)
