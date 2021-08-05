@@ -186,7 +186,6 @@ class ModelTrainer(BaseTrainer):
 
                     # run evaluator with val-mode model
                     with self.model_test.val_mode():
-                        print("here &&&&&&")
                         self.evaluator.eval(inputs, self.model_test)
 
                     # run non-val-mode model (inference) to check overfitting
@@ -242,7 +241,7 @@ class ModelTrainer(BaseTrainer):
 
     def postprocess_conf(self, conf):
         conf.model['batch_size'] = self._hp.batch_size if not torch.cuda.is_available() \
-            else int(self._hp.batch_size / torch.cuda.device_count())
+            else int(self._hp.batch_size / 1)   # TODO (twkim), torch.cuda.device_count()
         conf.model.update(conf.data.dataset_spec)
         conf.model['device'] = conf.data['device'] = self.device.type
         return conf
@@ -277,9 +276,10 @@ class ModelTrainer(BaseTrainer):
         else:
             logger = None
         model = params.model_class(self.conf.model, logger)
-        if torch.cuda.device_count() > 1:
-            print("\nUsing {} GPUs!\n".format(torch.cuda.device_count()))
-            model = DataParallelWrapper(model)
+        # # TODO
+        # if torch.cuda.device_count() > 1:
+        #     print("\nUsing {} GPUs!\n".format(torch.cuda.device_count()))
+        #     model = DataParallelWrapper(model)
         model = model.to(self.device)
         model.device = self.device
         loader = self.get_dataset(self.args, model, self.conf.data, phase, params.n_repeat, params.dataset_size)
@@ -381,7 +381,10 @@ def save_config(conf_path, exp_conf_path):
 
 
 if __name__ == '__main__':
-    remove_relax_v1()
+    # print(os.environ['CUDA_VISIBLE_DEVICES'])
+
+    remove_relax_v1()   # to remove the conflict caused by d4rl and relay-policy module
     my_args = get_args()
     my_args.path = '/home/twkim/cloudrobot/spirl/spirl/configs/skill_prior_learning/kitchen/hierarchical'
+    my_args.gpu = 0
     ModelTrainer(args=my_args)

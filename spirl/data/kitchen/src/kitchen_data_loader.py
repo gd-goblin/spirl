@@ -8,7 +8,7 @@ from spirl.utils.general_utils import AttrDict
 
 
 class D4RLSequenceSplitDataset(Dataset):
-    SPLIT = AttrDict(train=0.99, val=0.01, test=0.0)
+    SPLIT = AttrDict(train=0.95, val=0.05, test=0.0)
 
     def __init__(self, data_dir, data_conf, phase, resolution=None, shuffle=True, dataset_size=-1):
         self.phase = phase

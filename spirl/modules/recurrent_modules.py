@@ -169,13 +169,11 @@ class CustomLSTMCell(BaseCell):
     
     def var2state(self, var):
         """ Converts a tensor to a list of tuples that represents the state of the LSTM """
-        
         var_layers = torch.chunk(var, self.n_layers, 1)
         return [torch.chunk(layer, 2, 1) for layer in var_layers]
     
     def state2var(self, state):
         """ Converts the state of the LSTM to one tensor"""
-        
         layer_tensors = [torch.cat(layer, 1) for layer in state]
         return torch.cat(layer_tensors, 1)
     
