@@ -22,4 +22,4 @@ if __name__ == "__main__":
     skillPriorCmd = "python spirl/train.py --path=spirl/configs/skill_prior_learning/kitchen/hierarchical_cl --val_data_size=160"
     spirlCmd = "python3 spirl/rl/train.py --path=spirl/configs/hrl/kitchen/spirl_cl --seed=0 --prefix=SPIRL_kitchen_seed0"
 
-    subprocess.call([skillPriorCmd], shell=True)
+    subprocess.call([spirlCmd], shell=True)

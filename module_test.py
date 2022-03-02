@@ -16,9 +16,11 @@ def kitchen_dataset_test():
     n_rollout_steps = 10
     subseq_len = n_rollout_steps + 1
 
-    print("*** dataset quantity ***")
+    print("*** dataset info. ***")
     print("dataset keys: ", dataset.keys())
-    print("dataset shape: ", dataset['observations'].shape)
+    for key in dataset.keys():
+        print(key + " => \n    type/dtype: {} / {}\n    shape: {}\n    min/max: {} / {}".format(
+            type(dataset[key]), dataset[key].dtype, dataset[key].shape, dataset[key].min(), dataset[key].max()))
 
     seq_end_idxs = np.where(dataset['terminals'])[0]
     start = 0
