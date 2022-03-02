@@ -20,7 +20,11 @@ from spirl.utils.general_utils import dummy_context, AttrDict, get_clipped_optim
 from spirl.utils.pytorch_utils import LossSpikeHook, NanGradHook, NoneGradHook, \
                                                         DataParallelWrapper, RAdam
 from spirl.components.trainer_base import BaseTrainer
+from spirl.utils.wandb import WandBLogger
 from spirl.components.params import get_args
+
+WANDB_PROJECT_NAME = 'your_project_name'
+WANDB_ENTITY_NAME = 'your_entity_name'
 
 
 class ModelTrainer(BaseTrainer):
@@ -88,10 +92,13 @@ class ModelTrainer(BaseTrainer):
             'optimizer': 'radam',    # supported: 'adam', 'radam', 'rmsprop', 'sgd'
             'lr': 1e-3,
             'gradient_clip': None,
+            'init_grad_clip': 0.001,
+            'init_grad_clip_step': 100,     # clip gradients in initial N steps to avoid NaNs
             'momentum': 0,      # momentum in RMSProp / SGD optimizer
             'adam_beta': 0.9,       # beta1 param in Adam
             'top_of_n_eval': 1,     # number of samples used at eval time
             'top_comp_metric': None,    # metric that is used for comparison at eval time (e.g. 'mse')
+            'logging_target': 'wandb',
         })
         return default_dict
     
@@ -135,6 +142,9 @@ class ModelTrainer(BaseTrainer):
                 losses.total.value.backward()
                 self.call_hooks(inputs, output, losses, epoch)
 
+                if self.global_step < self._hp.init_grad_clip_step:
+                    # clip gradients in initial steps to avoid NaN gradients
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), self._hp.init_grad_clip)
                 self.optimizer.step()
                 self.model.step()
 
@@ -248,7 +258,13 @@ class ModelTrainer(BaseTrainer):
             save_cmd(self._hp.exp_path)
             save_git(self._hp.exp_path)
             save_config(conf.conf_path, os.path.join(self._hp.exp_path, "conf_" + datetime_str() + ".py"))
-            writer = SummaryWriter(log_dir)
+            if self._hp.logging_target == 'wandb':
+                exp_name = f"{'_'.join(self.args.path.split('/')[-3:])}_{self.args.prefix}" if self.args.prefix \
+                    else os.path.basename(self.args.path)
+                writer = WandBLogger(exp_name, WANDB_PROJECT_NAME, entity=WANDB_ENTITY_NAME,
+                                     path=self._hp.exp_path, conf=conf, exclude=['model_rewards', 'data_dataset_spec_rewards'])
+            else:
+                writer = SummaryWriter(log_dir)
         else:
             writer = None
 
@@ -266,7 +282,10 @@ class ModelTrainer(BaseTrainer):
 
     def build_phase(self, params, phase):
         if not self.args.dont_save:
-            logger = params.logger_class(self.log_dir, summary_writer=self.writer)
+            if self._hp.logging_target == 'wandb':
+                logger = self.writer
+            else:
+                logger = params.logger_class(self.log_dir, summary_writer=self.writer)
         else:
             logger = None
         model = params.model_class(self.conf.model, logger)

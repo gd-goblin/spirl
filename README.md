@@ -16,6 +16,7 @@ This is the official PyTorch implementation of the paper "**Accelerating Reinfor
 (CoRL 2020).
 
 ## Updates
+- **[Feb 2022]**: added [pre-trained models](spirl/data/pretrained_models.md) for kitchen and maze environments
 - **[Jul 2021]**: added robotic office cleanup environment 
 (see [details & installation here](spirl/data/office/README.md))
 - **[Apr 2021]**: extended improved SPiRL version to support image-based observations 
@@ -55,18 +56,20 @@ Finally, install our fork of the [D4RL benchmark](https://github.com/kpertsch/d4
 It will provide both, the kitchen environment as well as the training data for the skill prior model in kitchen and maze environment.
 
 ## Example Commands
+All results will be written to [WandB](https://www.wandb.com/). Before running any of the commands below, 
+create an account and then change the WandB entity and project name at the top of [train.py](spirl/train.py) and
+[rl/train.py](spirl/rl/train.py) to match your account.
+
 To train a skill prior model for the kitchen environment, run:
 ```
-python3 spirl/train.py --path=spirl/configs/skill_prior_learning/kitchen/hierarchical --val_data_size=160
+python3 spirl/train.py --path=spirl/configs/skill_prior_learning/kitchen/hierarchical_cl --val_data_size=160
 ```
-Results can be visualized using tensorboard in the experiment directory: `tensorboard --logdir=$EXP_DIR`.
+**Note**: You can skip this step by downloading our pre-trained skill prior models -- see [instructions here](spirl/data/pretrained_models.md).
 
 For training a SPIRL agent on the kitchen environment using the pre-trained skill prior from above, run:
 ```
-python3 spirl/rl/train.py --path=spirl/configs/hrl/kitchen/spirl --seed=0 --prefix=SPIRL_kitchen_seed0
+python3 spirl/rl/train.py --path=spirl/configs/hrl/kitchen/spirl_cl --seed=0 --prefix=SPIRL_kitchen_seed0
 ```
-Results will be written to [WandB](https://www.wandb.com/). Before running RL, 
-create an account and then change the WandB entity and project name at the top of [rl/train.py](spirl/rl/train.py) to match your account.
 
 In both commands, `kitchen` can be replaced with `maze / block_stacking` to run on the respective environment. Before training models
 on these environments, the corresponding datasets need to be downloaded (the kitchen dataset gets downloaded automatically) 
@@ -214,7 +217,7 @@ themselves are version controllable.
 |:------------- |:-------------|:-----|
 | Maze | [https://drive.google.com/file/d/1pXM-EDCwFrfgUjxITBsR48FqW9gMoXYZ/view?usp=sharing](https://drive.google.com/file/d/1pXM-EDCwFrfgUjxITBsR48FqW9gMoXYZ/view?usp=sharing) | 12GB |
 | Block Stacking |[https://drive.google.com/file/d/1VobNYJQw_Uwax0kbFG7KOXTgv6ja2s1M/view?usp=sharing](https://drive.google.com/file/d/1VobNYJQw_Uwax0kbFG7KOXTgv6ja2s1M/view?usp=sharing)| 11GB|
-| Office Cleanup | [https://drive.google.com/file/d/1FOE1kiU71nB-3KCDuxGqlAqRQbKmSk80/view?usp=sharing](https://drive.google.com/file/d/1FOE1kiU71nB-3KCDuxGqlAqRQbKmSk80/view?usp=sharing)| 170MB |
+| Office Cleanup | [https://drive.google.com/file/d/1yNsTZkefMMvdbIBe-dTHJxgPIRXyxzb7/view?usp=sharing](https://drive.google.com/file/d/1yNsTZkefMMvdbIBe-dTHJxgPIRXyxzb7/view?usp=sharing)| 170MB |
 
 You can download the datasets used for the experiments in the paper with the links above. 
 To download the data via the command line, see example commands [here](spirl/data/).
