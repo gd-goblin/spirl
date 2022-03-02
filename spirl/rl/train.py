@@ -1,3 +1,4 @@
+import sys
 import torch
 import os
 import imp
@@ -323,6 +324,19 @@ class RLTrainer:
 
 
 if __name__ == '__main__':
+    # for debugging..
+    # comment out following codes if you run this script directly
+    os.environ["EXP_DIR"] = "../experiments"
+    os.environ["DATA_DIR"] = "../data"
+
+    # with multi-GPU env, using only single GPU
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
+    sys.argv.append("--path=" + os.getcwd() + "/../configs/hrl/kitchen/spirl_cl")
+    sys.argv.append("--seed=0")
+    sys.argv.append("--prefix=SPIRL_kitchen_seed0")
+
     RLTrainer(args=get_args())
 
 
