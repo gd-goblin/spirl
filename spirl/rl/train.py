@@ -162,6 +162,16 @@ class RLTrainer:
                     for _ in range(WandBLogger.N_LOGGED_SAMPLES):   # for efficiency instead of self.args.n_val_samples
                         val_rollout_storage.append(self.sampler.sample_episode(is_train=False, render=True))
 
+        import cv2
+        for i in range(len(val_rollout_storage.rollouts)):
+            print("seq: ", i)
+            for img in val_rollout_storage.rollouts[i].image:
+                img = cv2.cvtColor(img.astype('float32'), cv2.COLOR_BGR2RGB)
+                cv2.imshow('Image', img)
+                cv2.waitKey()
+                print("img type / dtype: {} / {}".format(type(img), img.dtype))
+                print("img shape: {}".format(img.shape))
+
         rollout_stats = val_rollout_storage.rollout_stats()
         if self.is_chef:
             with timing("Eval log time: "):
@@ -262,14 +272,14 @@ class RLTrainer:
 
             # setup logger
             logger = None
-            if self.args.mode == 'train':
-                exp_name = f"{os.path.basename(self.args.path)}_{self.args.prefix}" if self.args.prefix \
-                    else os.path.basename(self.args.path)
-                if self._hp.logging_target == 'wandb':
-                    logger = WandBLogger(exp_name, WANDB_PROJECT_NAME, entity=WANDB_ENTITY_NAME,
-                                         path=self._hp.exp_path, conf=conf)
-                else:
-                    raise NotImplementedError   # TODO implement alternative logging (e.g. TB)
+            # if self.args.mode == 'train':
+            exp_name = f"{os.path.basename(self.args.path)}_{self.args.prefix}" if self.args.prefix \
+                else os.path.basename(self.args.path)
+            if self._hp.logging_target == 'wandb':
+                logger = WandBLogger(exp_name, WANDB_PROJECT_NAME, entity=WANDB_ENTITY_NAME,
+                                     path=self._hp.exp_path, conf=conf)
+            else:
+                raise NotImplementedError   # TODO implement alternative logging (e.g. TB)
             return logger
 
     def setup_device(self):
@@ -326,8 +336,8 @@ class RLTrainer:
 if __name__ == '__main__':
     # # for debugging..
     # # comment out following codes if you run this script directly
-    # os.environ["EXP_DIR"] = "../experiments"
-    # os.environ["DATA_DIR"] = "../data"
+    # os.environ["EXP_DIR"] = "../../experiments"
+    # os.environ["DATA_DIR"] = "../../data"
     #
     # # with multi-GPU env, using only single GPU
     # os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -336,7 +346,6 @@ if __name__ == '__main__':
     # sys.argv.append("--path=" + os.getcwd() + "/../configs/hrl/kitchen/spirl_cl")
     # sys.argv.append("--seed=0")
     # sys.argv.append("--prefix=SPIRL_kitchen_seed0")
+    # sys.argv.append("--mode=val")   # train / val
 
     RLTrainer(args=get_args())
-
-
