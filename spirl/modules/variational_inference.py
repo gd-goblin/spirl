@@ -243,6 +243,8 @@ def mc_kl_divergence(p, q, n_samples=1):
 
 if __name__ == "__main__":
     d = [Gaussian(torch.tensor([1., 1]), torch.zeros(2)), Gaussian(torch.tensor([-1., -1]), torch.zeros(2))]
-    d_avg = Gaussian.average(d)
+    g = Gaussian(mu=torch.tensor([0., 0.]), log_sigma=torch.zeros(2))
+    d_avg = g.average(d)
+    # d_avg = Gaussian.average(d)
     print(d_avg.mu, d_avg.sigma)
 

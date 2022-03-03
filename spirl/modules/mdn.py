@@ -136,7 +136,7 @@ if __name__ == "__main__":
     # fig = plt.figure()
     # ax = plt.subplot(111)
     # plt.xlim(-2, 2); plt.ylim(-2, 2)
-    # [_draw_gaussian(ax, component.tensor(), 'green', ten2ar(weight)) for weight, component in gmm[0]]
+    # [_draw_gaussian(ax, component.tensor(), 'green', float(ten2ar(weight))) for weight, component in gmm[0]]
     #
     # samples = np.concatenate([gmm.sample() for _ in range(1000)])
     # plt.scatter(samples[:, 0], samples[:, 1])
@@ -201,7 +201,7 @@ if __name__ == "__main__":
     plt.xlim(-2, 2); plt.ylim(-2, 2)
     # plt.scatter(data[:, 0], data[:, 1], c='black', alpha=0.1)
     # plt.scatter(samples[:, 0], samples[:, 1], c='green', alpha=0.5)
-    [_draw_gaussian(ax, component.tensor(), 'green', ten2ar(weight)) for weight, component in gmm_dist[0]]
+    [_draw_gaussian(ax, component.tensor(), 'green', float(ten2ar(weight))) for weight, component in gmm_dist[0]]
     plt.axis("equal")
     plt.savefig("gmm_fit.png")
     # plt.show()
