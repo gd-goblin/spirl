@@ -7,6 +7,12 @@ from spirl.rl.envs.kitchen import KitchenEnv
 import cv2
 
 
+def draw_img(img, ms=0):
+    img = cv2.cvtColor(img.astype('float32'), cv2.COLOR_BGR2RGB)
+    cv2.imshow('Image', img)
+    cv2.waitKey(ms)
+
+
 def kitchen_dataset_test():
     print("test dataset")
     SPLIT = AttrDict(train=0.99, val=0.01, test=0.0)
@@ -35,8 +41,27 @@ def kitchen_dataset_test():
 
     n_seqs = len(seqs)
     print("seqs: ", n_seqs)
+
+    """ env rendering """
+    env_confg = AttrDict(reward_norm=1.,)
+    kitchen_env = KitchenEnv(env_confg)
+    escape_loop = False
     for par in seqs:
         print("states: {}, actions: {}".format(par['states'].shape, par['actions'].shape))
+
+        db_state = par['states'][0]
+        state = kitchen_env.reset()
+        # TODO, The initial states between db and current env are different from each other
+        # TODO, thus we cannot visualize the dataset perfectly.
+        print("initial state error: ", db_state[:30] - state[:30])
+        for action in par['actions']:
+            obs, rew, done, info = kitchen_env.step(action)
+            img = cv2.cvtColor(kitchen_env.render().astype('float32'), cv2.COLOR_BGR2RGB)
+            cv2.imshow('Image', img)
+            if cv2.waitKey(0) == 27:
+                escape_loop = True
+                break
+        if escape_loop: break
 
     # train phase
     start = 0
@@ -45,12 +70,6 @@ def kitchen_dataset_test():
     # get item
     seq = np.random.choice(seqs[start:end])
     print(seq)
-
-
-def draw_img(img, ms=0):
-    img = cv2.cvtColor(img.astype('float32'), cv2.COLOR_BGR2RGB)
-    cv2.imshow('Image', img)
-    cv2.waitKey(ms)
 
 
 def render_test():
@@ -86,5 +105,5 @@ def render_test():
 
 
 if __name__ == "__main__":
-    # kitchen_dataset_test()
-    render_test()
+    kitchen_dataset_test()
+    # render_test()
