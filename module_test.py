@@ -46,19 +46,22 @@ def kitchen_dataset_test():
     env_confg = AttrDict(reward_norm=1.,)
     kitchen_env = KitchenEnv(env_confg)
     escape_loop = False
-    for par in seqs:
-        print("states: {}, actions: {}".format(par['states'].shape, par['actions'].shape))
+    for idx, par in enumerate(seqs, start=1):
+        print("Num: {}, states: {}, actions: {}".format(idx, par['states'].shape, par['actions'].shape))
 
+        length = len(par['states'])
         db_state = par['states'][0]
         state = kitchen_env.reset()
         # TODO, The initial states between db and current env are different from each other
         # TODO, thus we cannot visualize the dataset perfectly.
         print("initial state error: ", db_state[:30] - state[:30])
-        for action in par['actions']:
+        for frame, action in enumerate(par['actions'], start=1):
+            if frame % 5 == 0:
+                print("    Num: {} / {},   frame: {} / {}".format(idx, n_seqs, frame, length))
             obs, rew, done, info = kitchen_env.step(action)
             img = cv2.cvtColor(kitchen_env.render().astype('float32'), cv2.COLOR_BGR2RGB)
             cv2.imshow('Image', img)
-            if cv2.waitKey(0) == 27:
+            if cv2.waitKey(1) == 27:
                 escape_loop = True
                 break
         if escape_loop: break
